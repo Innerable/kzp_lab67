@@ -1,5 +1,6 @@
 """Тести CLI лабораторної № 6."""
 
+import pytest
 from conftest import DATA_FILE, HEADER
 
 from kzp_lab06.cli import main
@@ -37,3 +38,10 @@ def test_unwritable_output_returns_io_code(tmp_path, capsys):
     blocker.write_text("x", encoding="utf-8")
     assert main([str(DATA_FILE), str(blocker / "report.txt")]) == 2
     assert "Помилка запису" in capsys.readouterr().err
+
+
+def test_version_flag_prints_version_and_exits(capsys):
+    with pytest.raises(SystemExit) as info:
+        main(["--version"])
+    assert info.value.code == 0
+    assert capsys.readouterr().out.startswith("kzp-lab06 ")

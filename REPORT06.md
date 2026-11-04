@@ -22,6 +22,20 @@
 | `average` | float | 0–100, не NaN |
 
 Приклад рядка з екрануванням: `"Шевченко, Тарас",КІ-302,2,95.0`.
+
+Приклад вхідного файла (`data/input.csv`):
+
+```csv
+full_name,group,year,average
+Петренко Іван,КІ-301,3,92.5
+Коваль Олена,КІ-301,3,88.0
+"Шевченко, Тарас",КІ-302,2,95.0
+Мельник Марія,КІ-302,2,76.5
+Бондар Андрій,КІ-501,5,90.0
+Ткаченко Оксана,КІ-501,5,98.5
+Іваненко Іван,КІ-303,4,67.0
+Савчук Дарина,КІ-303,4,84.0
+```
 **Порожній вхід:** файл лише із заголовком дає порожній список і звіт із нулями;
 файл без заголовка або без обов'язкового стовпця — `DataError`.
 
@@ -69,6 +83,17 @@ summarize(records, "average", "year", minimum_average=90.0, average="Сума")
 | 1 | помилка даних (повідомлення в stderr, UTF-8) |
 | 2 | помилка запису звіту |
 
+Команда `kzp-lab06 --version` друкує версію пакета (`kzp-lab06 0.2.0`) і завершується кодом 0.
+
+Приклад помилкового запуску (рядок 2 містить `abc` у полі `average`):
+
+```text
+$ kzp-lab06 bad.csv report.txt
+Помилка даних: Рядок 2: поле average має хибний формат: 'abc'
+$ echo $?
+1
+```
+
 ## 9. Файловий звіт
 Запис через `with path.open("w", encoding="utf-8", newline="\n")`, каталог створюється
 `mkdir(parents=True, exist_ok=True)`. Звіт на `data/input.csv`:
@@ -87,7 +112,7 @@ summarize(records, "average", "year", minimum_average=90.0, average="Сума")
 ```
 
 ## 10. Тестування
-38 тестів: `test_lab06_loader.py` (19), `test_lab06_analysis.py` (14), `test_lab06_cli.py` (5).
+39 тестів: `test_lab06_loader.py` (19), `test_lab06_analysis.py` (14), `test_lab06_cli.py` (6).
 
 | Тип | Приклади |
 |---|---|
@@ -98,19 +123,35 @@ summarize(records, "average", "year", minimum_average=90.0, average="Сума")
 
 ## 11. Якість та пакетування
 ```bash
-python -m pytest              # 38 passed
+python -m pytest              # 39 passed
 ruff check .                  # All checks passed
 ruff format --check .         # already formatted
-python -m build               # kzp_lab67-0.1.0-py3-none-any.whl
+python -m build               # kzp_lab67-0.2.0-py3-none-any.whl
+python tools/wheel_smoke.py   # усі перевірки ok
 python -m venv .venv-wheel && .venv-wheel/bin/python -m pip install --no-deps dist/*.whl
 .venv-wheel/bin/python -m kzp_lab06.cli data/input.csv reports/wheel-summary.txt
 ```
 Wheel встановлено в чисте середовище, CLI дав очікуваний звіт, а на неіснуючому файлі — код 1.
 
 ## 12. GitHub Actions
-`.github/workflows/ci.yml` (Ubuntu): ruff check, ruff format --check, pytest, збирання wheel,
-установлення wheel у чисте середовище й запуск CLI. Матриця ОС та публікація артефакту — рівень 3,
-у цій роботі не виконувались. Посилання на запуск: _вставте_.
+`.github/workflows/ci.yml` запускається на **Ubuntu, Windows і macOS** (`fail-fast: false`).
+Кроки: `ruff check`, `ruff format --check`, `pytest`, збирання wheel, перевірка wheel
+скриптом `tools/wheel_smoke.py`, публікація wheel як артефакту.
+
+`tools/wheel_smoke.py` працює однаково на всіх ОС (шлях до інтерпретатора вибирається за
+платформою): створює чисте середовище, встановлює wheel без dev-залежностей і перевіряє
+`--version`, успішний сценарій (код 0, звіт збігається зі stdout) та помилковий сценарій
+(код 1, номер рядка в stderr, звіт не створюється), а також наявність команди `kzp-lab06`.
+
+| Перевірка | Ubuntu | Windows | macOS |
+|---|---|---|---|
+| ruff, pytest, wheel, smoke | _вставте результат_ | _вставте результат_ | _вставте результат_ |
+
+- Посилання на зелений CI-запуск: _вставте_.
+- Артефакти wheel (`wheel-ubuntu-latest-N`, `wheel-windows-latest-N`, `wheel-macos-latest-N`): _вставте_.
+- Версія: `0.2.0`; Git-тег: _вставте після злиття Pull Request_.
+- Кодування й роздільники рядків: `.gitattributes` задає LF, звіт пишеться з `newline="\n"`,
+  stdout і stderr CLI явно перемикаються на UTF-8, тому результат однаковий на всіх ОС.
 
 ## 13. GitHub Issues і Pull Request
 

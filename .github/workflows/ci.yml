@@ -9,7 +9,11 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,8 +39,13 @@ jobs:
       - name: Build wheel
         run: python -m build
 
-      - name: Install wheel in a clean environment and run the CLI
-        run: |
-          python -m venv .venv-wheel
-          .venv-wheel/bin/python -m pip install --no-deps dist/*.whl
-          .venv-wheel/bin/python -m kzp_lab06.cli data/input.csv reports/wheel-lab06.txt
+      - name: Smoke-test wheel in a clean environment (success and error scenarios)
+        run: python tools/wheel_smoke.py
+
+      - name: Upload wheel
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-${{ github.run_number }}
+          path: dist/*.whl
+          if-no-files-found: error
