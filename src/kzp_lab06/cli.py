@@ -58,11 +58,11 @@ def _package_version() -> str:
 
 
 def _use_utf8_streams() -> None:
-    """Явно задає UTF-8 для stdout і stderr, щоб українські тексти не залежали від ОС."""
+    """Задає UTF-8 і роздільник рядків \\n для stdout і stderr, щоб вивід не залежав від ОС."""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
-            reconfigure(encoding="utf-8")
+            reconfigure(encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
