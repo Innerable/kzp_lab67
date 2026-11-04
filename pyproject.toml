@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kzp-lab67"
+version = "0.1.0"
+description = "Лабораторна робота 6: обробка CSV засобами Python (реєстр студентів)"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "build>=1.2",
+]
+
+[project.scripts]
+kzp-lab06 = "kzp_lab06.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+exclude = ["build", "dist", ".venv", ".venv-*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP"]
