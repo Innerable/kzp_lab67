@@ -1,5 +1,9 @@
 """Тести CLI лабораторної № 6."""
 
+import io
+import sys
+
+import pytest
 from conftest import DATA_FILE, HEADER
 
 from kzp_lab06.cli import main
@@ -37,3 +41,21 @@ def test_unwritable_output_returns_io_code(tmp_path, capsys):
     blocker.write_text("x", encoding="utf-8")
     assert main([str(DATA_FILE), str(blocker / "report.txt")]) == 2
     assert "Помилка запису" in capsys.readouterr().err
+
+
+def test_version_flag_prints_version_and_exits(capsys):
+    with pytest.raises(SystemExit) as info:
+        main(["--version"])
+    assert info.value.code == 0
+    assert capsys.readouterr().out.startswith("kzp-lab06 ")
+
+
+def test_stdout_uses_lf_even_if_platform_default_is_crlf(tmp_path, monkeypatch):
+    raw = io.BytesIO()
+    # Імітує Windows: текстовий потік за замовчуванням перетворює \n на \r\n.
+    stream = io.TextIOWrapper(raw, encoding="cp1252", newline="\r\n", write_through=True)
+    monkeypatch.setattr(sys, "stdout", stream)
+    output = tmp_path / "report.txt"
+    assert main([str(DATA_FILE), str(output)]) == 0
+    assert raw.getvalue() == output.read_bytes()
+    assert b"\r" not in raw.getvalue()

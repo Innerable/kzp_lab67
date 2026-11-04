@@ -3,6 +3,7 @@
 import argparse
 import sys
 from collections.abc import Sequence
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from kzp_lab06.analysis import HIGH_AVERAGE_THRESHOLD, make_summary
@@ -18,6 +19,7 @@ EXIT_IO_ERROR = 2
 def build_parser() -> argparse.ArgumentParser:
     """Створює розбирач аргументів."""
     parser = argparse.ArgumentParser(prog="kzp-lab06", description="Звіт за реєстром студентів.")
+    parser.add_argument("--version", action="version", version=f"kzp-lab06 {_package_version()}")
     parser.add_argument("input", type=Path, help="вхідний CSV")
     parser.add_argument("output", type=Path, help="файл звіту")
     parser.add_argument(
@@ -47,12 +49,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     return EXIT_OK
 
 
+def _package_version() -> str:
+    """Повертає версію встановленого пакета або \"unknown\", якщо пакет не встановлено."""
+    try:
+        return version("kzp-lab67")
+    except PackageNotFoundError:
+        return "unknown"
+
+
 def _use_utf8_streams() -> None:
-    """Явно задає UTF-8 для stdout і stderr, щоб українські тексти не залежали від ОС."""
+    """Задає UTF-8 і роздільник рядків \\n для stdout і stderr, щоб вивід не залежав від ОС."""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
-            reconfigure(encoding="utf-8")
+            reconfigure(encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
