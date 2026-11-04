@@ -30,7 +30,16 @@ def check(condition: bool, message: str) -> None:
     print(f"ok: {message}")
 
 
+def use_utf8_output() -> None:
+    """Перемикає stdout і stderr на UTF-8: на Windows типове кодування (cp1252) не має кирилиці."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
+
+
 def main() -> None:
+    use_utf8_output()
     wheels = sorted((ROOT / "dist").glob("*.whl"))
     check(len(wheels) == 1, f"у dist/ рівно один wheel ({[w.name for w in wheels]})")
 
