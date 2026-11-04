@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kzp-lab67"
-version = "0.2.0"
-description = "Лабораторна робота 6: обробка CSV засобами Python (реєстр студентів)"
+version = "0.3.0"
+description = "Лабораторні роботи 6-7: обробка CSV засобами Python (реєстр студентів)"
 readme = "README.md"
 requires-python = ">=3.11"
 
@@ -18,6 +18,7 @@ dev = [
 
 [project.scripts]
 kzp-lab06 = "kzp_lab06.cli:main"
+kzp-lab07 = "kzp_lab07.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
