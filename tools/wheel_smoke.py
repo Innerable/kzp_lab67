@@ -53,26 +53,41 @@ def main() -> None:
         install = run(python, "-m", "pip", "install", "--no-deps", str(wheels[0]))
         check(install.returncode == 0, "wheel встановлено без dev-залежностей")
 
-        version = run(python, "-m", "kzp_lab06.cli", "--version")
-        check(version.returncode == 0 and "kzp-lab06" in text(version.stdout), "--version")
-
-        good = work / "report.txt"
-        ok = run(python, "-m", "kzp_lab06.cli", str(ROOT / "data" / "input.csv"), str(good))
-        check(ok.returncode == 0, "успішний сценарій: код 0")
-        report = good.read_text(encoding="utf-8")
-        check("Записів: 8" in report, "звіт містить очікувані дані")
-        check(text(ok.stdout) == report, "stdout збігається з файлом звіту")
-
+        data = ROOT / "data" / "input.csv"
         bad_csv = work / "bad.csv"
         bad_csv.write_text("full_name,group,year,average\nІван,КІ-301,3,abc\n", encoding="utf-8")
-        bad_report = work / "bad-report.txt"
-        failed = run(python, "-m", "kzp_lab06.cli", str(bad_csv), str(bad_report))
-        check(failed.returncode == 1, "помилковий сценарій: код 1")
-        check("Рядок 2" in text(failed.stderr), "повідомлення про помилку містить номер рядка")
-        check(not bad_report.exists(), "звіт не створюється для пошкодженого CSV")
 
-        script = scripts / ("kzp-lab06.exe" if sys.platform == "win32" else "kzp-lab06")
-        check(script.exists(), "встановлено консольну команду kzp-lab06")
+        reports = {}
+        for number in ("06", "07"):
+            module = f"kzp_lab{number}.cli"
+            label = f"лаб. {number}"
+            version = run(python, "-m", module, "--version")
+            check(
+                version.returncode == 0 and f"kzp-lab{number}" in text(version.stdout),
+                f"{label}: --version",
+            )
+
+            good = work / f"report{number}.txt"
+            ok = run(python, "-m", module, str(data), str(good))
+            check(ok.returncode == 0, f"{label}: успішний сценарій, код 0")
+            report = good.read_text(encoding="utf-8")
+            check("Записів: 8" in report, f"{label}: звіт містить очікувані дані")
+            check(text(ok.stdout) == report, f"{label}: stdout збігається з файлом звіту")
+            reports[number] = report
+
+            bad_report = work / f"bad-report{number}.txt"
+            failed = run(python, "-m", module, str(bad_csv), str(bad_report))
+            check(failed.returncode == 1, f"{label}: помилковий сценарій, код 1")
+            check("Рядок 2" in text(failed.stderr), f"{label}: у помилці є номер рядка")
+            check(not bad_report.exists(), f"{label}: звіт не створюється для пошкодженого CSV")
+
+            script = scripts / (f"kzp-lab{number}" + (".exe" if sys.platform == "win32" else ""))
+            check(script.exists(), f"{label}: встановлено команду kzp-lab{number}")
+
+        check(reports["06"] == reports["07"], "звіт лаб. 7 збігається зі звітом лаб. 6")
+        rated = work / "rated.txt"
+        run(python, "-m", "kzp_lab07.cli", str(data), str(rated), "--ratings")
+        check("Рейтинг груп:" in rated.read_text(encoding="utf-8"), "лаб. 07: --ratings")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,11 @@
-# kzp_lab67 — лабораторна робота № 6 (Python)
+# kzp_lab67 — лабораторні роботи № 6–7 (Python)
 
 Курс «Кросплатформні засоби програмування». **Варіант 6 — реєстр студентів.**
-Пакет `kzp_lab06`: CSV → словники, списки, множини, comprehensions, текстовий звіт.
-Звіт: [REPORT06.md](REPORT06.md).
+
+| Пакет | Лабораторна | Суть | Звіт |
+|---|---|---|---|
+| `kzp_lab06` | № 6 | CSV → словники, списки, множини, comprehensions, текстовий звіт | [REPORT06.md](REPORT06.md) |
+| `kzp_lab07` | № 7 | ті самі дані як об'єкти: `Learner`, `Bachelor`, `Master`, `dataclass`, `Protocol` | [REPORT07.md](REPORT07.md) |
 
 ## Формат CSV
 
@@ -31,9 +34,10 @@ python -m pip install -e ".[dev]"
 
 ```bash
 python -m kzp_lab06.cli data/input.csv reports/summary-lab06.txt
+python -m kzp_lab07.cli data/input.csv reports/summary-lab07.txt --ratings
 ```
 
-Після встановлення доступна команда `kzp-lab06` (`kzp-lab06 --version` друкує версію).
+Після встановлення доступні команди `kzp-lab06` і `kzp-lab07` (`--version` друкує версію).
 Коди завершення: `0` — успіх, `1` — помилка даних (повідомлення в stderr), `2` — помилка запису звіту.
 
 ## Перевірки
@@ -58,5 +62,5 @@ python -m venv .venv-wheel
 
 GitHub Actions (`.github/workflows/ci.yml`) запускається на **Ubuntu, Windows і macOS**.
 Кожен запуск виконує `ruff check`, `ruff format --check`, `pytest`, збирає wheel,
-перевіряє його в чистому середовищі (`tools/wheel_smoke.py`: успішний сценарій із кодом 0
-і помилковий із кодом 1) та публікує wheel як артефакт `wheel-<ОС>-<номер запуску>`.
+перевіряє його в чистому середовищі (`tools/wheel_smoke.py`: для обох CLI успішний сценарій із кодом 0
+і помилковий із кодом 1; звіт лаб. 7 порівнюється зі звітом лаб. 6) та публікує wheel як артефакт `wheel-<ОС>-<номер запуску>`.
